@@ -7,13 +7,13 @@ def run_sample_optimization(solver):
     demand = np.array([[100, 500, 30], [20, 200, 50], [150, 15, 35], [10, 5, 25]])
     product_supply = np.array([550, 200, 170, 40])
     allocation = cp.Variable(demand.shape, integer=True)
-    a = cp.Variable(shape=1)
+    a = cp.Variable(shape=1)  # To help with debugging
     objective = cp.Maximize(cp.sum(allocation/demand) + cp.sum(a))
     constraints = [
         cp.sum(allocation, axis=1) <= product_supply,
         allocation <= demand,
         allocation >= 0,
-        cp.sum(a) == 2,
+        cp.sum(a) == 0,
     ]
     problem = cp.Problem(objective, constraints)
 
