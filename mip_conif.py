@@ -1,5 +1,6 @@
 """
 Copyright 2016 Sascha-Dominic Schnug
+Copyright 2021 Michael Jurasovic
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -24,7 +25,7 @@ from cvxpy.reductions.solution import Solution, failure_solution
 import numpy as np
 
 
-class PythonMIP(CBC):
+class PYTHON_MIP(CBC):  # uppercase consistent with cvxopt
     """ An interface to the python-mip solver
     """
 
@@ -44,7 +45,7 @@ class PythonMIP(CBC):
         _ = mip  # For flake8
 
     def accepts(self, problem):
-        """Can Cbc solve the problem?
+        """Can python-mip solve the problem?
         """
         # TODO check if is matrix stuffed.
         if not problem.objective.args[0].is_affine():
@@ -65,7 +66,7 @@ class PythonMIP(CBC):
         tuple
             (dict of arguments needed for the solver, inverse data)
         """
-        data, inv_data = super(PythonMIP, self).apply(problem)
+        data, inv_data = super(PYTHON_MIP, self).apply(problem)
         variables = problem.x
         data[s.BOOL_IDX] = [int(t[0]) for t in variables.boolean_idx]
         data[s.INT_IDX] = [int(t[0]) for t in variables.integer_idx]
