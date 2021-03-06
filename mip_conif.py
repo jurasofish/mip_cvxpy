@@ -32,24 +32,6 @@ class PythonMIP(CBC):
     MIP_CAPABLE = True
     SUPPORTED_CONSTRAINTS = ConicSolver.SUPPORTED_CONSTRAINTS
 
-    # Map of CBC status to CVXPY status.
-    STATUS_MAP_MIP = {'solution': s.OPTIMAL,
-                      'relaxation infeasible': s.INFEASIBLE,
-                      'stopped on user event': s.SOLVER_ERROR,
-                      'stopped on nodes': s.OPTIMAL_INACCURATE,
-                      'stopped on gap': s.OPTIMAL_INACCURATE,
-                      'stopped on time': s.OPTIMAL_INACCURATE,
-                      'stopped on solutions': s.OPTIMAL_INACCURATE,
-                      'linear relaxation unbounded': s.UNBOUNDED,
-                      'unset': s.UNBOUNDED}
-
-    STATUS_MAP_LP = {'optimal': s.OPTIMAL,
-                     'primal infeasible': s.INFEASIBLE,
-                     'dual infeasible': s.UNBOUNDED,
-                     'stopped due to errors': s.SOLVER_ERROR,
-                     'stopped by event handler (virtual int '
-                     'ClpEventHandler::event())': s.SOLVER_ERROR}
-
     def name(self):
         """The name of the solver.
         """
@@ -117,78 +99,62 @@ class PythonMIP(CBC):
         model = mip.Model()
 
         # Variables
-        x = [model.add_var() for _ in range(n)]
+        x = []
+        bool_idxs = set(data[s.BOOL_IDX])
+        int_idxs = set(data[s.INT_IDX])
+        for i in range(n):
+            if i in bool_idxs:
+                x.append(model.add_var(var_type=mip.BINARY))
+            elif i in int_idxs:
+                x.append(model.add_var(var_type=mip.INTEGER))
+            else:
+                x.append(model.add_var())
 
         # Constraints
         # eq
-        model += A[0:dims[s.EQ_DIM], :] * x == CyLPArray(b[0:dims[s.EQ_DIM]])
-
+        def add_eq_constraints(_model):
+            coeffs = A[0:dims[s.EQ_DIM], :]
+            vals = b[0:dims[s.EQ_DIM]]
+            for i in range(coeffs.shape[0]):
+                coeff_list = np.squeeze(np.array(coeffs[i].todense())).tolist()
+                expr = mip.LinExpr(variables=x, coeffs=coeff_list)
+                _model += expr == vals[i]
+        add_eq_constraints(model)
 
         # leq
-        leq_start = dims[s.EQ_DIM]
-        leq_end = dims[s.EQ_DIM] + dims[s.LEQ_DIM]
-        model += A[leq_start:leq_end, :] * x <= CyLPArray(b[leq_start:leq_end])
+        def add_leq_constraints(_model):
+            leq_start = dims[s.EQ_DIM]
+            leq_end = dims[s.EQ_DIM] + dims[s.LEQ_DIM]
+            coeffs = A[leq_start:leq_end, :]
+            vals = b[leq_start:leq_end]
+            for i in range(coeffs.shape[0]):
+                coeff_list = np.squeeze(np.array(coeffs[i].todense())).tolist()
+                expr = mip.LinExpr(variables=x, coeffs=coeff_list)
+                _model += expr <= vals[i]
+        add_leq_constraints(model)
 
         # Objective
-        model.objective = c
+        model.objective = mip.minimize(mip.LinExpr(variables=x, coeffs=c.tolist()))
 
-        # Convert model
-        model = CyClpSimplex(model)
+        model.verbose = verbose
+        status = model.optimize()
 
-        # No boolean vars available in Cbc -> model as int + restrict to [0,1]
-        if data[s.BOOL_IDX] or data[s.INT_IDX]:
-            # Mark integer- and binary-vars as "integer"
-            model.setInteger(x[data[s.BOOL_IDX]])
-            model.setInteger(x[data[s.INT_IDX]])
+        status_map = {
+            mip.OptimizationStatus.OPTIMAL: s.OPTIMAL,
+            mip.OptimizationStatus.INFEASIBLE: s.INFEASIBLE,
+            mip.OptimizationStatus.INT_INFEASIBLE: s.INFEASIBLE,
+            mip.OptimizationStatus.NO_SOLUTION_FOUND: s.INFEASIBLE,
+            mip.OptimizationStatus.ERROR: s.SOLVER_ERROR,
+            mip.OptimizationStatus.UNBOUNDED: s.UNBOUNDED,
+            mip.OptimizationStatus.CUTOFF: s.INFEASIBLE,
+            mip.OptimizationStatus.FEASIBLE: s.OPTIMAL_INACCURATE,
+            mip.OptimizationStatus.LOADED: s.SOLVER_ERROR,  # No match really
+        }
 
-            # Restrict binary vars only
-            idxs = data[s.BOOL_IDX]
-            n_idxs = len(idxs)
-
-            model.setColumnLowerSubset(np.arange(n_idxs, dtype=np.int32),
-                                       np.array(idxs, np.int32),
-                                       np.zeros(n_idxs))
-
-            model.setColumnUpperSubset(np.arange(n_idxs, dtype=np.int32),
-                                       np.array(idxs, np.int32),
-                                       np.ones(n_idxs))
-
-        # Verbosity Clp
-        if not verbose:
-            model.logLevel = 0
-
-        # Build model & solve
-        status = None
-        if data[s.BOOL_IDX] or data[s.INT_IDX]:
-            # Convert model
-            cbcModel = model.getCbcModel()
-            for key, value in solver_opts.items():
-                setattr(cbcModel, key, value)
-
-            # Verbosity Cbc
-            if not verbose:
-                cbcModel.logLevel = 0
-
-            # cylp: /cylp/cy/CyCbcModel.pyx#L134
-            # Call CbcMain. Solve the problem using the same parameters used by
-            # CbcSolver. Equivalent to solving the model from the command line
-            # using cbc's binary.
-            cbcModel.solve()
-            status = cbcModel.status
-        else:
-            # cylp: /cylp/cy/CyClpSimplex.pyx
-            # Run CLP's initialSolve. It does a presolve and uses primal or dual
-            # Simplex to solve a problem.
-            status = model.initialSolve()
-
-        solution = {}
-        if data[s.BOOL_IDX] or data[s.INT_IDX]:
-            solution["status"] = self.STATUS_MAP_MIP[status]
-            solution["primal"] = cbcModel.primalVariableSolution['x']
-            solution["value"] = cbcModel.objectiveValue
-        else:
-            solution["status"] = self.STATUS_MAP_LP[status]
-            solution["primal"] = model.primalVariableSolution['x']
-            solution["value"] = model.objectiveValue
+        solution = {
+            "status": status_map[status],
+            "primal": [var.x for var in x],
+            "value": model.objective_value,
+        }
 
         return solution
