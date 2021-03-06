@@ -1,4 +1,10 @@
 """
+
+Based on
+    https://github.com/cvxgrp/cvxpy/
+    blob/5d5c7d606e39b3ea4b54391f772c7e3dc38ede20/cvxpy/reductions/
+    solvers/conic_solvers/cbc_conif.py
+
 Copyright 2016 Sascha-Dominic Schnug
 Copyright 2021 Michael Jurasovic
 
