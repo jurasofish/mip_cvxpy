@@ -132,15 +132,15 @@ class PYTHON_MIP(CBC):  # uppercase consistent with cvxopt
         def add_leq_constraints(_model):
             leq_start = dims[s.EQ_DIM]
             leq_end = dims[s.EQ_DIM] + dims[s.LEQ_DIM]
-            coeffs = A[leq_start:leq_end, :]
+            coeffs = A[leq_start:leq_end, :].tocsr()  # CSR format faster as we're going row by row
             vals = b[leq_start:leq_end]
+            indices, indptr, data = coeffs.indices, coeffs.indptr, coeffs.data
             for i in range(coeffs.shape[0]):
                 # coeff_list = np.squeeze(np.array(coeffs[i].todense())).tolist()
-                coeffs_row_sparse = coeffs[i]
-                nz_idxs = coeffs_row_sparse.nonzero()[1]
-                vars = [x[j] for j in nz_idxs]
-                coeffs_row = coeffs_row_sparse.data  # CSR format, so only non-zero elements stored.
-                expr = mip.LinExpr(variables=vars, coeffs=coeffs_row)
+                col_idxs = indices[indptr[i]:indptr[i+1]]
+                row_vals = data[indptr[i]:indptr[i+1]]
+                vars = [x[j] for j in col_idxs]
+                expr = mip.LinExpr(variables=vars, coeffs=row_vals.tolist())
                 _model += expr <= vals[i]
         add_leq_constraints(model)
 
