@@ -6,7 +6,7 @@ import mip  # So that subsequent imports are quick.
 
 def run_sample_optimization(solver):
 
-    n = int(1e4)
+    n = int(1e6)
     vars = cp.Variable(n, integer=True)
 
     objective = cp.Maximize(cp.sum(vars))
