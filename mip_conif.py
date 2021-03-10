@@ -136,7 +136,6 @@ class PYTHON_MIP(CBC):  # uppercase consistent with cvxopt
             vals = b[leq_start:leq_end]
             indices, indptr, data = coeffs.indices, coeffs.indptr, coeffs.data
             for i in range(coeffs.shape[0]):
-                # coeff_list = np.squeeze(np.array(coeffs[i].todense())).tolist()
                 col_idxs = indices[indptr[i]:indptr[i+1]]
                 row_vals = data[indptr[i]:indptr[i+1]]
                 vars = [x[j] for j in col_idxs]
