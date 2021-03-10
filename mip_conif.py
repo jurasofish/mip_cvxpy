@@ -135,8 +135,12 @@ class PYTHON_MIP(CBC):  # uppercase consistent with cvxopt
             coeffs = A[leq_start:leq_end, :]
             vals = b[leq_start:leq_end]
             for i in range(coeffs.shape[0]):
-                coeff_list = np.squeeze(np.array(coeffs[i].todense())).tolist()
-                expr = mip.LinExpr(variables=x, coeffs=coeff_list)
+                # coeff_list = np.squeeze(np.array(coeffs[i].todense())).tolist()
+                # coeffs_row_sparse = coeffs[i]
+                nz_idxs = coeffs[i].nonzero()[1]
+                vars = [x[j] for j in nz_idxs]
+                coeffs_row = coeffs[i].data  # CSR format, so only non-zero elements stored.
+                expr = mip.LinExpr(variables=vars, coeffs=coeffs_row)
                 _model += expr <= vals[i]
         add_leq_constraints(model)
 
