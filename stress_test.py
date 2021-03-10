@@ -21,7 +21,7 @@ def run_sample_optimization(solver):
 
     optimal_value = problem.solve(solver=solver)
     print(problem.status)
-    print(vars.value)
+    # print(vars.value)
 
 
 
