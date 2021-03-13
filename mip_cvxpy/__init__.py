@@ -122,12 +122,21 @@ class PYTHON_MIP(CBC):  # uppercase consistent with cvxopt
         # Constraints
         # eq
         def add_eq_constraints(_model):
-            coeffs = A[0 : dims[s.EQ_DIM], :]
+            # CSR format faster as we're going row by row:
+            coeffs = A[0 : dims[s.EQ_DIM], :].tocsr()
             vals = b[0 : dims[s.EQ_DIM]]
+            indices, indptr, data = coeffs.indices, coeffs.indptr, coeffs.data
             for i in range(coeffs.shape[0]):
-                coeff_list = np.squeeze(np.array(coeffs[i].todense())).tolist()
-                expr = mip.LinExpr(variables=x, coeffs=coeff_list)
-                _model += expr == vals[i]
+                col_idxs = indices[indptr[i] : indptr[i + 1]]
+                row_vals = data[indptr[i] : indptr[i + 1]]
+                vars = [x[j] for j in col_idxs]
+                constr = mip.LinExpr(
+                    variables=vars,
+                    coeffs=row_vals.tolist(),
+                    const=-1 * vals[i],
+                    sense=mip.EQUAL,
+                )
+                _model.add_constr(constr)
 
         add_eq_constraints(model)
 
