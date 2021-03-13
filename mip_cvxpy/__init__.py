@@ -143,8 +143,13 @@ class PYTHON_MIP(CBC):  # uppercase consistent with cvxopt
                 col_idxs = indices[indptr[i] : indptr[i + 1]]
                 row_vals = data[indptr[i] : indptr[i + 1]]
                 vars = [x[j] for j in col_idxs]
-                expr = mip.LinExpr(variables=vars, coeffs=row_vals.tolist())
-                _model += expr <= vals[i]
+                constr = mip.LinExpr(
+                    variables=vars,
+                    coeffs=row_vals.tolist(),
+                    const=-1 * vals[i],
+                    sense="<",
+                )
+                _model.add_constr(constr)
 
         add_leq_constraints(model)
 
