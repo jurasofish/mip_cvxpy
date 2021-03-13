@@ -76,7 +76,7 @@ class TestPYTHON_MIP(BaseTest):
     def test_python_mip_lp_5_without_duals(self):
         StandardTestLPs.test_lp_5(solver=PYTHON_MIP(), duals=False)
 
-    # @unittest.expectedFailure  # https://github.com/cvxgrp/cvxpy/issues/1077
+    @unittest.expectedFailure  # https://github.com/cvxgrp/cvxpy/issues/1077
     def test_python_mip_lp_5_with_duals(self):
         StandardTestLPs.test_lp_5(solver=PYTHON_MIP())
 
