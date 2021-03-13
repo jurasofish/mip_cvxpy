@@ -21,6 +21,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+import unittest
 import cvxpy as cp
 from mip_cvxpy import PYTHON_MIP
 from cvxpy.tests.base_test import BaseTest
@@ -72,7 +73,11 @@ class TestPYTHON_MIP(BaseTest):
     def test_python_mip_lp_4(self):
         StandardTestLPs.test_lp_4(solver=PYTHON_MIP())
 
-    def test_python_mip_lp_5(self):
+    def test_python_mip_lp_5_without_duals(self):
+        StandardTestLPs.test_lp_5(solver=PYTHON_MIP(), duals=False)
+
+    # @unittest.expectedFailure  # https://github.com/cvxgrp/cvxpy/issues/1077
+    def test_python_mip_lp_5_with_duals(self):
         StandardTestLPs.test_lp_5(solver=PYTHON_MIP())
 
     def test_python_mip_mi_lp_0(self):
