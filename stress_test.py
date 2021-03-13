@@ -12,17 +12,16 @@ def run_sample_optimization(solver):
     objective = cp.Maximize(cp.sum(vars))
     constraints = [
         vars[0] == 1,
-        vars <= np.linspace(10, n+10, num=n),
+        vars <= np.linspace(10, n + 10, num=n),
     ]
     problem = cp.Problem(objective, constraints)
 
     solver_name = solver if isinstance(solver, str) else solver.name()
-    print('solving with', solver_name)
+    print("solving with", solver_name)
 
     optimal_value = problem.solve(solver=solver)
     print(problem.status)
     # print(vars.value)
-
 
 
 def main():

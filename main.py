@@ -8,7 +8,7 @@ def run_sample_optimization(solver):
     product_supply = np.array([550, 200, 170, 40])
     allocation = cp.Variable(demand.shape, integer=True)
     a = cp.Variable(shape=1)  # To help with debugging
-    objective = cp.Maximize(cp.sum(allocation/demand) + cp.sum(a))
+    objective = cp.Maximize(cp.sum(allocation / demand) + cp.sum(a))
     constraints = [
         cp.sum(allocation, axis=1) <= product_supply,
         allocation <= demand,
@@ -18,14 +18,14 @@ def run_sample_optimization(solver):
     problem = cp.Problem(objective, constraints)
 
     solver_name = solver if isinstance(solver, str) else solver.name()
-    print('solving with', solver_name)
+    print("solving with", solver_name)
 
     optimal_value = problem.solve(solver=solver)
 
-    print('product supply:', product_supply)
-    print('demand:\n', demand)
-    print('allocation:\n', allocation.value)
-    print('calculated score:', optimal_value)
+    print("product supply:", product_supply)
+    print("demand:\n", demand)
+    print("allocation:\n", allocation.value)
+    print("calculated score:", optimal_value)
     return product_supply, demand, allocation.value, optimal_value
 
 

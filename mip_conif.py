@@ -32,27 +32,24 @@ import numpy as np
 
 
 class PYTHON_MIP(CBC):  # uppercase consistent with cvxopt
-    """ An interface to the python-mip solver
-    """
+    """An interface to the python-mip solver"""
 
     # Solver capabilities.
     MIP_CAPABLE = True
     SUPPORTED_CONSTRAINTS = ConicSolver.SUPPORTED_CONSTRAINTS
 
     def name(self):
-        """The name of the solver.
-        """
+        """The name of the solver."""
         return "PYTHON_MIP"
 
     def import_solver(self):
-        """Imports the solver.
-        """
+        """Imports the solver."""
         import mip
+
         _ = mip  # For flake8
 
     def accepts(self, problem):
-        """Can python-mip solve the problem?
-        """
+        """Can python-mip solve the problem?"""
         # TODO check if is matrix stuffed.
         if not problem.objective.args[0].is_affine():
             return False
@@ -80,13 +77,12 @@ class PYTHON_MIP(CBC):  # uppercase consistent with cvxopt
         return data, inv_data
 
     def invert(self, solution, inverse_data):
-        """Returns the solution to the original problem given the inverse_data.
-        """
-        status = solution['status']
+        """Returns the solution to the original problem given the inverse_data."""
+        status = solution["status"]
 
         if status in s.SOLUTION_PRESENT:
-            opt_val = solution['value'] + inverse_data[s.OFFSET]
-            primal_vars = {inverse_data[self.VAR_ID]: solution['primal']}
+            opt_val = solution["value"] + inverse_data[s.OFFSET]
+            primal_vars = {inverse_data[self.VAR_ID]: solution["primal"]}
             return Solution(status, opt_val, primal_vars, None, {})
         else:
             return failure_solution(status)
@@ -120,28 +116,32 @@ class PYTHON_MIP(CBC):  # uppercase consistent with cvxopt
         # Constraints
         # eq
         def add_eq_constraints(_model):
-            coeffs = A[0:dims[s.EQ_DIM], :]
-            vals = b[0:dims[s.EQ_DIM]]
+            coeffs = A[0 : dims[s.EQ_DIM], :]
+            vals = b[0 : dims[s.EQ_DIM]]
             for i in range(coeffs.shape[0]):
                 coeff_list = np.squeeze(np.array(coeffs[i].todense())).tolist()
                 expr = mip.LinExpr(variables=x, coeffs=coeff_list)
                 _model += expr == vals[i]
+
         add_eq_constraints(model)
 
         # leq
         def add_leq_constraints(_model):
             leq_start = dims[s.EQ_DIM]
             leq_end = dims[s.EQ_DIM] + dims[s.LEQ_DIM]
-            coeffs = A[leq_start:leq_end, :].tocsr()  # CSR format faster as we're going row by row
+            # CSR format faster as we're going row by row:
+            coeffs = A[leq_start:leq_end, :].tocsr()
             vals = b[leq_start:leq_end]
             indices, indptr, data = coeffs.indices, coeffs.indptr, coeffs.data
             from tqdm import tqdm
+
             for i in tqdm(range(coeffs.shape[0])):
-                col_idxs = indices[indptr[i]:indptr[i+1]]
-                row_vals = data[indptr[i]:indptr[i+1]]
+                col_idxs = indices[indptr[i] : indptr[i + 1]]
+                row_vals = data[indptr[i] : indptr[i + 1]]
                 vars = [x[j] for j in col_idxs]
                 expr = mip.LinExpr(variables=vars, coeffs=row_vals.tolist())
                 _model += expr <= vals[i]
+
         add_leq_constraints(model)
 
         # Objective
