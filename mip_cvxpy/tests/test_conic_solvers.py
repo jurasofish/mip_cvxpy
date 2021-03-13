@@ -31,31 +31,30 @@ from cvxpy.tests.solver_test_helpers import (
     StandardTestMixedCPs,
     StandardTestSDPs,
     StandardTestSOCPs,
-    StandardTestPCPs
+    StandardTestPCPs,
 )
 
 
-@unittest.skipUnless('CBC' in INSTALLED_SOLVERS, 'CBC is not installed.')
+@unittest.skipUnless("CBC" in INSTALLED_SOLVERS, "CBC is not installed.")
 class TestCBC(BaseTest):
-
     def setUp(self):
-        self.a = cp.Variable(name='a')
-        self.b = cp.Variable(name='b')
-        self.c = cp.Variable(name='c')
+        self.a = cp.Variable(name="a")
+        self.b = cp.Variable(name="b")
+        self.c = cp.Variable(name="c")
 
-        self.x = cp.Variable(2, name='x')
-        self.y = cp.Variable(3, name='y')
-        self.z = cp.Variable(2, name='z')
+        self.x = cp.Variable(2, name="x")
+        self.y = cp.Variable(3, name="y")
+        self.z = cp.Variable(2, name="z")
 
-        self.A = cp.Variable((2, 2), name='A')
-        self.B = cp.Variable((2, 2), name='B')
-        self.C = cp.Variable((3, 2), name='C')
+        self.A = cp.Variable((2, 2), name="A")
+        self.B = cp.Variable((2, 2), name="B")
+        self.C = cp.Variable((3, 2), name="C")
 
     def test_options(self):
-        """Test that all the cvx.CBC solver options work.
-        """
-        prob = cp.Problem(cp.Minimize(cp.norm(self.x, 1)),
-                          [self.x == cp.Variable(2, boolean=True)])
+        """Test that all the cvx.CBC solver options work."""
+        prob = cp.Problem(
+            cp.Minimize(cp.norm(self.x, 1)), [self.x == cp.Variable(2, boolean=True)]
+        )
         if cp.CBC in INSTALLED_SOLVERS:
             for i in range(2):
                 # Some cut-generators seem to be buggy for now -> set to false
@@ -70,34 +69,36 @@ class TestCBC(BaseTest):
         else:
             with self.assertRaises(Exception) as cm:
                 prob.solve(solver=cp.CBC)
-                self.assertEqual(str(cm.exception), "The solver %s is not installed." % cp.CBC)
+                self.assertEqual(
+                    str(cm.exception), "The solver %s is not installed." % cp.CBC
+                )
 
     def test_cbc_lp_0(self):
-        StandardTestLPs.test_lp_0(solver='CBC', duals=False)
+        StandardTestLPs.test_lp_0(solver="CBC", duals=False)
 
     def test_cbc_lp_1(self):
-        StandardTestLPs.test_lp_1(solver='CBC', duals=False)
+        StandardTestLPs.test_lp_1(solver="CBC", duals=False)
 
     def test_cbc_lp_2(self):
-        StandardTestLPs.test_lp_2(solver='CBC', duals=False)
+        StandardTestLPs.test_lp_2(solver="CBC", duals=False)
 
     def test_cbc_lp_3(self):
-        StandardTestLPs.test_lp_3(solver='CBC')
+        StandardTestLPs.test_lp_3(solver="CBC")
 
     def test_cbc_lp_4(self):
-        StandardTestLPs.test_lp_4(solver='CBC')
+        StandardTestLPs.test_lp_4(solver="CBC")
 
     def test_cbc_lp_5(self):
-        StandardTestLPs.test_lp_5(solver='CBC')
+        StandardTestLPs.test_lp_5(solver="CBC")
 
     def test_cbc_mi_lp_0(self):
-        StandardTestLPs.test_mi_lp_0(solver='CBC')
+        StandardTestLPs.test_mi_lp_0(solver="CBC")
 
     def test_cbc_mi_lp_1(self):
-        StandardTestLPs.test_mi_lp_1(solver='CBC')
+        StandardTestLPs.test_mi_lp_1(solver="CBC")
 
     def test_cbc_mi_lp_2(self):
-        StandardTestLPs.test_mi_lp_2(solver='CBC')
+        StandardTestLPs.test_mi_lp_2(solver="CBC")
 
     def test_cbc_mi_lp_3(self):
-        StandardTestLPs.test_mi_lp_3(solver='CBC')
+        StandardTestLPs.test_mi_lp_3(solver="CBC")
