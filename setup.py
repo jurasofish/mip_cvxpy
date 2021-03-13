@@ -8,7 +8,7 @@ with open("./readme.md", "r") as ff:
 with open("requirements.txt") as f:
     requirements = f.read().splitlines()
 
-with open('requirements_test.txt') as f:
+with open("requirements_test.txt") as f:
     requirements_test = f.read().splitlines()
 
 # Parse version
