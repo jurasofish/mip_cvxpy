@@ -13,7 +13,7 @@ init = Path(__file__).parent / "mip_cvxpy" / "__init__.py"
 version = None
 for line in init.read_text().split("\n"):
     if line.startswith("__version__"):
-        version = line.split("=")[-1].strip('"')
+        version = line.split("=")[-1].strip().strip('"')
         break
 if version is None:
     raise ValueError("No version found")
