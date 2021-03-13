@@ -8,6 +8,9 @@ with open("./readme.md", "r") as ff:
 with open("requirements.txt") as f:
     requirements = f.read().splitlines()
 
+with open('requirements_test.txt') as f:
+    requirements_test = f.read().splitlines()
+
 # Parse version
 init = Path(__file__).parent / "mip_cvxpy" / "__init__.py"
 version = None
@@ -32,4 +35,7 @@ setup(
     # package_data={'sphinx_toggleprompt': ['_static/toggleprompt.js_t']},
     classifiers=["License :: OSI Approved :: MIT License"],
     install_requires=requirements,
+    extras_require={
+        "test": requirements_test,
+    },
 )
