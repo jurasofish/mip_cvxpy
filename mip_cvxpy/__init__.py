@@ -147,7 +147,7 @@ class PYTHON_MIP(CBC):  # uppercase consistent with cvxopt
                     variables=vars,
                     coeffs=row_vals.tolist(),
                     const=-1 * vals[i],
-                    sense="<",
+                    sense=mip.LESS_OR_EQUAL,
                 )
                 _model.add_constr(constr)
 
