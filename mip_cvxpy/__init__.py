@@ -115,7 +115,7 @@ class PYTHON_MIP(CBC):  # uppercase consistent with cvxopt
             if i in bool_idxs:
                 x.append(model.add_var(var_type=mip.BINARY))
             elif i in int_idxs:
-                x.append(model.add_var(var_type=mip.INTEGER), lb=-mip.INF)
+                x.append(model.add_var(var_type=mip.INTEGER, lb=-mip.INF))
             else:
                 x.append(model.add_var(lb=-mip.INF))
 
