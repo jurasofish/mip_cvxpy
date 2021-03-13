@@ -1,4 +1,10 @@
 """
+
+Based on
+    https://github.com/cvxgrp/cvxpy/
+    blob/fd125b8e6f99d50dcb307e68bcec8b3bdc344f74/cvxpy/tests/
+    test_conic_solvers.py
+
 Copyright 2019, the CVXPY developers.
 Copyright 2021, Michael Jurasovic.
 
