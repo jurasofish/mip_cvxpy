@@ -45,3 +45,29 @@ class TestBenchmarks(BaseTest):
         benchmark(f_cylp, iters=10, name="small_lp_CBC_second")
         benchmark(f_mip, iters=10, name="small_lp_PYTHON_MIP_first")
         benchmark(f_mip, iters=10, name="small_lp_PYTHON_MIP_second")
+
+    def test_large_sparse_integer_program(self):
+        n = int(1e4)
+
+        def large_mip(solver_name):
+            if solver_name == "PYTHON_MIP":
+                solver = PYTHON_MIP()
+            else:
+                solver = solver_name
+
+            x = cp.Variable(n, integer=True)
+            objective = cp.Maximize(cp.sum(x))
+            constraints = [
+                x[0] == 1,
+                x <= np.array(list(range(10, 10 + n))),
+            ]
+            problem = cp.Problem(objective, constraints)
+            optimal_value = problem.solve(solver=solver)
+
+        f_cylp = lambda: large_mip(cp.CBC)
+        f_mip = lambda: large_mip("PYTHON_MIP")
+
+        benchmark(f_cylp, iters=10, name="large_mip_CBC_first")
+        benchmark(f_cylp, iters=10, name="large_mip_CBC_second")
+        benchmark(f_mip, iters=10, name="large_mip_PYTHON_MIP_first")
+        benchmark(f_mip, iters=10, name="large_mip_PYTHON_MIP_second")
