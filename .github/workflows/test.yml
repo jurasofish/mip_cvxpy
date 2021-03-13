@@ -33,7 +33,11 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         # Install the chunky packages with conda:
-        conda install --yes ecos scs osqp
+        conda install --yes \
+          ecos \
+          scs \
+          osqp \
+          coin-or-cbc
         pip install -e .[test]
         pip list
 
