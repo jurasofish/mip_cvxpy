@@ -149,7 +149,8 @@ class PYTHON_MIP(CBC):  # uppercase consistent with cvxopt
         add_leq_constraints(model)
 
         # Objective
-        model.objective = mip.minimize(mip.LinExpr(variables=x, coeffs=c.tolist()))
+        obj_expr = mip.LinExpr(variables=x, coeffs=c.tolist())
+        model.objective = mip.minimize(obj_expr)
 
         model.verbose = verbose
         status = model.optimize()
