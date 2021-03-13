@@ -27,7 +27,7 @@ setup(
     long_description_content_type="text/markdown",
     author="Michael Jurasovic",
     url="https://github.com/jurasofish/mip_cvxpy",
-    license="MIT License",
+    license="Apache License, Version 2.0",
     packages=find_packages(),
     # package_data={'sphinx_toggleprompt': ['_static/toggleprompt.js_t']},
     classifiers=["License :: OSI Approved :: MIT License"],
