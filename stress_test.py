@@ -1,6 +1,6 @@
 import numpy as np
 import cvxpy as cp
-from mip_conif import PYTHON_MIP
+from mip_cvxpy import PYTHON_MIP
 import mip  # So that subsequent imports are quick.
 
 

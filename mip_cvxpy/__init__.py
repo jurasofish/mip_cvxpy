@@ -31,6 +31,12 @@ from cvxpy.reductions.solution import Solution, failure_solution
 import numpy as np
 
 
+__all__ = [
+    "PYTHON_MIP",
+]
+__version__ = "0.0.1"
+
+
 class PYTHON_MIP(CBC):  # uppercase consistent with cvxopt
     """An interface to the python-mip solver"""
 
