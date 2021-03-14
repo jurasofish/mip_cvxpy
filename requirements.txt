@@ -1,5 +1,4 @@
 cvxpy >= 1.1.11  # On windows, ``conda install -c conda-forge ecos`` first (and maybe scs idk)
 scipy
-numpy  # TODO: remove
 # TODO: check with mip>=1.8.2 (probably enumerate all versions)
 mip==1.13.0
