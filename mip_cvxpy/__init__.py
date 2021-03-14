@@ -28,8 +28,6 @@ from cvxpy.reductions.solvers.conic_solvers.cbc_conif import (
 )
 from cvxpy.reductions.solvers.conic_solvers.conic_solver import ConicSolver
 from cvxpy.reductions.solution import Solution, failure_solution
-import numpy as np
-
 
 __all__ = [
     "PYTHON_MIP",
