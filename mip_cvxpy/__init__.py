@@ -167,6 +167,9 @@ class PYTHON_MIP(CBC):  # uppercase consistent with cvxopt
         model.objective = mip.minimize(obj_expr)
 
         model.verbose = verbose
+        for key, value in solver_opts.items():
+            setattr(model, key, value)
+
         status = model.optimize()
 
         status_map = {
