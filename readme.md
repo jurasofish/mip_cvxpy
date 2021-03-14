@@ -12,6 +12,14 @@ CBC. By default, CVXOPT calls [CyLP](https://github.com/coin-or/CyLP)
 to use CBC and requires CBC to be manually installed. python-mip, on
 the other hand, comes with CBC bundled through pypi.
 
+This package is based heavily off the [CyLP/CBC interface](
+https://github.com/cvxgrp/cvxpy/blob/master/cvxpy/reductions/solvers/conic_solvers/cbc_conif.py)
+and is slower: on smaller problems mip_cvxpy interface takes perhaps 1.3x as long
+as CyLP, and on larger problems perhaps 5x as long (see the benchmark in the
+test suite). CyLP has a significant advantage in natively supporting sparse 
+matrices and vectorisation.
+
+
 ## Installation
 
 Install from pypi
