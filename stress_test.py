@@ -6,7 +6,7 @@ import mip  # So that subsequent imports are quick.
 
 def run_sample_optimization(solver):
 
-    n = int(1e6)
+    n = int(1e5)
     vars = cp.Variable(n, integer=True)
 
     objective = cp.Maximize(cp.sum(vars))
@@ -19,7 +19,7 @@ def run_sample_optimization(solver):
     solver_name = solver if isinstance(solver, str) else solver.name()
     print("solving with", solver_name)
 
-    optimal_value = problem.solve(solver=solver)
+    optimal_value = problem.solve(solver=solver, verbose=True)
     print(problem.status)
     # print(vars.value)
 
